@@ -5,6 +5,7 @@ import Input from '../components/ui/input';
 import { Label } from "../components/ui/label";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import config from '../config';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -14,7 +15,7 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/register', { email, password });
+      await axios.post(`${config.backendUrl}/api/auth/register`, { email, password });
       navigate('/login');
     } catch (err) {
       alert('Signup failed');

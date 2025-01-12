@@ -6,6 +6,7 @@ import { Label } from "../components/ui/label";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import config from '../config';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const response = await axios.post(`${config.backendUrl}/api/auth/login`, { email, password });
       login(response.data.token, navigate);
     } catch (err) {
       alert('Login failed');

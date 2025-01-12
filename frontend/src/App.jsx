@@ -10,6 +10,8 @@ import { Plus, Bell, ListTodo, CircleCheckBig, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import AuthContext from './context/AuthContext';
 import config from './config';
+import { format } from 'date-fns';
+import axios from 'axios';
 
 export default function App() {
   const [view, setView] = useState('add-task');
@@ -26,6 +28,49 @@ export default function App() {
   const [popupColor, setPopupColor] = useState('green');
   const { isAuthenticated } = useContext(AuthContext);
 
+  useEffect(() => {
+    const fetchNotificationSettings = async () => {
+      try {
+        const response = await axios.get(`${config.backendUrl}/api/notifications`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        if (response.data) {
+          setNotificationType(response.data.notificationType);
+          setNotificationEmail(response.data.notificationEmail);
+          setNotificationWhatsApp(response.data.notificationWhatsApp);
+          setNotificationTime(response.data.notificationTime);
+          console.log('Fetched notification settings:', response.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch notification settings', err);
+      }
+    };
+    if (isAuthenticated) {
+      fetchNotificationSettings();
+    }
+  }, [isAuthenticated]);
+
+  const saveNotificationSettings = async () => {
+    try {
+      await axios.post(`${config.backendUrl}/api/notifications`, {
+        notificationType,
+        notificationEmail,
+        notificationWhatsApp,
+        notificationTime,
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setPopupMessage('Notification settings saved!');
+      setPopupColor('green');
+      setTimeout(() => setPopupMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to save notification settings', err);
+      setPopupMessage('Failed to save notification settings');
+      setPopupColor('red');
+      setTimeout(() => setPopupMessage(''), 3000);
+    }
+  };
+
   const fetchTasks = async () => {
     try {
       const response = await fetch(`${config.backendUrl}/api/tasks`, {
@@ -35,6 +80,7 @@ export default function App() {
       });
       const data = await response.json();
       setTasks(data);
+      console.log('Fetched tasks:', data);
     } catch (err) {
       console.error('Failed to fetch tasks', err);
     }
@@ -85,8 +131,12 @@ export default function App() {
       setPopupMessage('Task added successfully!');
       setPopupColor('green');
       setTimeout(() => setPopupMessage(''), 3000);
+      console.log('Added task:', data);
     } catch (err) {
       console.error('Failed to create task', err);
+      setPopupMessage('Failed to create task');
+      setPopupColor('red');
+      setTimeout(() => setPopupMessage(''), 3000);
     }
   };
 
@@ -103,9 +153,7 @@ export default function App() {
       setTimeout(() => setPopupMessage(''), 3000);
       return;
     }
-    setPopupMessage('Notification settings saved!');
-    setPopupColor('green');
-    setTimeout(() => setPopupMessage(''), 3000);
+    saveNotificationSettings();
   };
 
   const saveNotificationDetails = () => {
@@ -115,9 +163,7 @@ export default function App() {
       setTimeout(() => setPopupMessage(''), 3000);
       return;
     }
-    setPopupMessage('Notification details saved!');
-    setPopupColor('green');
-    setTimeout(() => setPopupMessage(''), 3000);
+    saveNotificationSettings();
   };
 
   return (
@@ -127,7 +173,7 @@ export default function App() {
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center">
             <CircleCheckBig className="h-6 w-6 text-black-500 mr-2" />
-            <h1 className="text-2xl font-bold text-black-500">Task Tick</h1>
+            <h1 className="text-2xl font-bold text-black-500">Tick Task</h1>
           </div>
         </div>
       </header>
@@ -167,7 +213,7 @@ export default function App() {
               className="w-full flex items-center justify-center space-x-2 text-center md:space-x-2"
             >
               <Clock className="h-6 w-6" />
-              <span className="hidden md:inline">Notify Details</span>
+              <span className="hidden md:inline">Notification Duration</span>
             </Button>
           </div>
         </div>
@@ -240,12 +286,12 @@ export default function App() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-600">{task.description}</p>
-                      <p className="text-gray-600">Deadline: {task.deadline}</p>
+                      <p className="text-gray-600">Notification Type: {notificationType}</p>
+                      {notificationType === 'email' && <p className="text-gray-600">Email: {notificationEmail}</p>}
+                      {notificationType === 'whatsapp' && <p className="text-gray-600">WhatsApp: {notificationWhatsApp}</p>}
+                      <p className="text-gray-600">Deadline: {format(new Date(task.deadline), 'hh:mm a dd/MM/yy')}</p>
+                      <p className="text-gray-600">Timer: {notificationTime} minutes before deadline</p>
                       <p className="text-gray-600">Priority: {task.priority}</p>
-                      <p className="text-gray-600">Notification Type: {task.notificationType}</p>
-                      {task.notificationType === 'email' && <p className="text-gray-600">Notification Email: {task.notificationEmail}</p>}
-                      {task.notificationType === 'whatsapp' && <p className="text-gray-600">Notification WhatsApp: {task.notificationWhatsApp}</p>}
-                      <p className="text-gray-600">Notification Time: {task.notificationTime} minutes before deadline</p>
                     </CardContent>
                   </Card>
                 </motion.div>

@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
+const notificationRoutes = require('./notifications'); // Add this line
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/notifications', notificationRoutes); // Add this line
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

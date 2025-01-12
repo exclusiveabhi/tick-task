@@ -1,6 +1,7 @@
 // frontend/src/context/AuthContext.js
 import React, { createContext, useState } from 'react';
 import axios from 'axios';
+import config from '../config';
 
 const AuthContext = createContext();
 
