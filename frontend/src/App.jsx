@@ -1,27 +1,29 @@
-import { useState } from 'react'
-import { Button } from "./components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./components/ui/card"
-import { Input } from "./components/ui/input"
-import { Label } from "./components/ui/label"
-import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
-import { Textarea } from "./components/ui/textarea"
-import { Plus, Bell, ListTodo, CircleCheckBig, Clock, ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
+import { useState, useContext } from 'react';
+import { Button } from "./components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
+import Input from "./components/ui/input"; // Corrected import
+import { Label } from "./components/ui/label";
+import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
+import { Textarea } from "./components/ui/textarea";
+import { Plus, Bell, ListTodo, CircleCheckBig, Clock, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import AuthContext from './context/AuthContext';
 
 export default function App() {
-  const [view, setView] = useState('add-task')
-  const [tasks, setTasks] = useState([])
-  const [taskTitle, setTaskTitle] = useState('')
-  const [taskDescription, setTaskDescription] = useState('')
-  const [taskDeadline, setTaskDeadline] = useState('')
-  const [taskPriority, setTaskPriority] = useState('')
-  const [notificationType, setNotificationType] = useState('email')
-  const [notificationEmail, setNotificationEmail] = useState('')
-  const [notificationWhatsApp, setNotificationWhatsApp] = useState('')
-  const [notificationTime, setNotificationTime] = useState(10)
-  const [popupMessage, setPopupMessage] = useState('')
-  const [popupColor, setPopupColor] = useState('green')
+  const [view, setView] = useState('add-task');
+  const [tasks, setTasks] = useState([]);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDeadline, setTaskDeadline] = useState('');
+  const [taskPriority, setTaskPriority] = useState('');
+  const [notificationType, setNotificationType] = useState('email');
+  const [notificationEmail, setNotificationEmail] = useState('');
+  const [notificationWhatsApp, setNotificationWhatsApp] = useState('');
+  const [notificationTime, setNotificationTime] = useState(10);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupColor, setPopupColor] = useState('green');
+  const { isAuthenticated } = useContext(AuthContext);
 
   const addTask = () => {
     if (!taskTitle || !taskDescription || !taskDeadline || !taskPriority) {

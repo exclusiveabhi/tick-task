@@ -1,21 +1,28 @@
+// frontend/src/Signup.jsx
 import React, { useState } from 'react';
-import { Button, Input, Label } from "/components/ui/button";
+import { Button } from "../components/ui/button";
+import Input from '../components/ui/input';
+import { Label } from "../components/ui/label";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 export default function Signup() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/register', { username, password });
+      await axios.post('http://localhost:5000/api/auth/register', { email, password });
       navigate('/login');
     } catch (err) {
       alert('Signup failed');
     }
+  };
+
+  const handleLoginRedirect = () => {
+    navigate('/login');
   };
 
   return (
@@ -24,8 +31,8 @@ export default function Signup() {
         <h2 className="text-2xl font-bold mb-6 text-center">Signup</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -33,6 +40,9 @@ export default function Signup() {
           </div>
           <Button type="submit" className="w-full">Signup</Button>
         </form>
+        <div className="mt-4 text-center">
+          <Button onClick={handleLoginRedirect} className="w-full">Already have an account</Button>
+        </div>
       </div>
     </div>
   );
