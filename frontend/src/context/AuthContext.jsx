@@ -1,17 +1,11 @@
-// frontend/src/context/AuthContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
+// frontend/src/context/AuthContext.js
+import React, { createContext, useState } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
 
   const login = (token, navigate) => {
     localStorage.setItem('token', token);
@@ -19,10 +13,9 @@ export const AuthProvider = ({ children }) => {
     navigate('/home');
   };
 
-  const logout = (navigate) => {
+  const logout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-    navigate('/login');
   };
 
   return (

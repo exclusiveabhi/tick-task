@@ -1,14 +1,15 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
-import Input from "./components/ui/input"; // Corrected import
+import Input from "./components/ui/input";
 import { Label } from "./components/ui/label";
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { Textarea } from "./components/ui/textarea";
-import { Plus, Bell, ListTodo, CircleCheckBig, Clock, ArrowRight } from "lucide-react";
+import { Plus, Bell, ListTodo, CircleCheckBig, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import AuthContext from './context/AuthContext';
+import config from './config';
 
 export default function App() {
   const [view, setView] = useState('add-task');
@@ -25,52 +26,99 @@ export default function App() {
   const [popupColor, setPopupColor] = useState('green');
   const { isAuthenticated } = useContext(AuthContext);
 
-  const addTask = () => {
-    if (!taskTitle || !taskDescription || !taskDeadline || !taskPriority) {
-      setPopupMessage('All fields are required!')
-      setPopupColor('red')
-      setTimeout(() => setPopupMessage(''), 3000)
-      return
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch(`${config.backendUrl}/api/tasks`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await response.json();
+      setTasks(data);
+    } catch (err) {
+      console.error('Failed to fetch tasks', err);
     }
-    setTasks([...tasks, { title: taskTitle, description: taskDescription, deadline: taskDeadline, priority: taskPriority }])
-    setTaskTitle('')
-    setTaskDescription('')
-    setTaskDeadline('')
-    setTaskPriority('')
-    setPopupMessage('Task added successfully!')
-    setPopupColor('green')
-    setTimeout(() => setPopupMessage(''), 3000)
-  }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchTasks();
+    }
+  }, [isAuthenticated]);
+
+  const addTask = async () => {
+    if (!taskTitle || !taskDescription || !taskDeadline || !taskPriority) {
+      setPopupMessage('All fields are required!');
+      setPopupColor('red');
+      setTimeout(() => setPopupMessage(''), 3000);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${config.backendUrl}/api/tasks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          title: taskTitle,
+          description: taskDescription,
+          deadline: taskDeadline,
+          priority: taskPriority,
+          notificationType,
+          notificationEmail,
+          notificationWhatsApp,
+          notificationTime,
+        }),
+      });
+      const data = await response.json();
+      setTasks([...tasks, data]);
+      setTaskTitle('');
+      setTaskDescription('');
+      setTaskDeadline('');
+      setTaskPriority('');
+      setNotificationType('email');
+      setNotificationEmail('');
+      setNotificationWhatsApp('');
+      setNotificationTime(10);
+      setPopupMessage('Task added successfully!');
+      setPopupColor('green');
+      setTimeout(() => setPopupMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to create task', err);
+    }
+  };
 
   const saveNotification = () => {
     if (!notificationEmail && notificationType === 'email') {
-      setPopupMessage('Email is required!')
-      setPopupColor('red')
-      setTimeout(() => setPopupMessage(''), 3000)
-      return
+      setPopupMessage('Email is required!');
+      setPopupColor('red');
+      setTimeout(() => setPopupMessage(''), 3000);
+      return;
     }
     if (!notificationWhatsApp && notificationType === 'whatsapp') {
-      setPopupMessage('WhatsApp number is required!')
-      setPopupColor('red')
-      setTimeout(() => setPopupMessage(''), 3000)
-      return
+      setPopupMessage('WhatsApp number is required!');
+      setPopupColor('red');
+      setTimeout(() => setPopupMessage(''), 3000);
+      return;
     }
-    setPopupMessage('Notification settings saved!')
-    setPopupColor('green')
-    setTimeout(() => setPopupMessage(''), 3000)
-  }
+    setPopupMessage('Notification settings saved!');
+    setPopupColor('green');
+    setTimeout(() => setPopupMessage(''), 3000);
+  };
 
   const saveNotificationDetails = () => {
     if (!notificationTime) {
-      setPopupMessage('Notification time is required!')
-      setPopupColor('red')
-      setTimeout(() => setPopupMessage(''), 3000)
-      return
+      setPopupMessage('Notification time is required!');
+      setPopupColor('red');
+      setTimeout(() => setPopupMessage(''), 3000);
+      return;
     }
-    setPopupMessage('Notification details saved!')
-    setPopupColor('green')
-    setTimeout(() => setPopupMessage(''), 3000)
-  }
+    setPopupMessage('Notification details saved!');
+    setPopupColor('green');
+    setTimeout(() => setPopupMessage(''), 3000);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -194,6 +242,10 @@ export default function App() {
                       <p className="text-gray-600">{task.description}</p>
                       <p className="text-gray-600">Deadline: {task.deadline}</p>
                       <p className="text-gray-600">Priority: {task.priority}</p>
+                      <p className="text-gray-600">Notification Type: {task.notificationType}</p>
+                      {task.notificationType === 'email' && <p className="text-gray-600">Notification Email: {task.notificationEmail}</p>}
+                      {task.notificationType === 'whatsapp' && <p className="text-gray-600">Notification WhatsApp: {task.notificationWhatsApp}</p>}
+                      <p className="text-gray-600">Notification Time: {task.notificationTime} minutes before deadline</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -280,5 +332,5 @@ export default function App() {
         </div>
       )}
     </div>
-  )
+  );
 }
