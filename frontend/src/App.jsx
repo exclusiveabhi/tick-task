@@ -6,7 +6,7 @@ import { Label } from "./components/ui/label"
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
 import { Textarea } from "./components/ui/textarea"
-import { Plus, Bell, Users, Home, Clock, ArrowRight } from "lucide-react"
+import { Plus, Bell, Users, CircleCheckBig, Clock, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function App() {
@@ -28,7 +28,7 @@ export default function App() {
     setTaskDescription('')
     setTaskDeadline('')
     setTaskPriority('')
-    setPopupMessage('Task added successfully!')
+    setPopupMessage('Task added successfully !')
     setTimeout(() => setPopupMessage(''), 3000)
   }
 
@@ -43,7 +43,7 @@ export default function App() {
       <header className="bg-white shadow-lg">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center">
-            <Home className="h-6 w-6 text-black-500 mr-2" />
+            <CircleCheckBig className="h-6 w-6 text-black-500 mr-2" />
             <h1 className="text-2xl font-bold text-black-500">Task Tick</h1>
           </div>
         </div>
@@ -51,8 +51,8 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 py-8 flex">
-        
-      <div className="w-1/4 pr-5">
+      {/* width side bar yaha hai ! */}
+      <div className="w-[23.5%] pr-5"> 
   <div className="flex flex-col space-y-4">
     <Button
       variant="outline"
@@ -87,7 +87,9 @@ export default function App() {
       <span className="hidden md:inline">Notify Details</span>
     </Button>
   </div>
+  
 </div>
+
 
         <div className="w-3/4">
           {view === 'add-task' && (
@@ -104,7 +106,7 @@ export default function App() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="title" className="text-sm font-medium">Title</Label>
-                    <Input id="title" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full" />
+                    <Input id="title" value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="w-full"  />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="description" className="text-sm font-medium">Description</Label>
@@ -237,17 +239,18 @@ export default function App() {
       </main>
 
       {/* Popup */}
-      {popupMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.5 }}
-          className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg"
-        >
-          {popupMessage}
-        </motion.div>
-      )}
+{popupMessage && (
+  <motion.div
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.5 }}
+    className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-5 py-2 rounded shadow-lg"
+  >
+    {popupMessage}
+  </motion.div>
+)}
+
     </div>
   )
 }
