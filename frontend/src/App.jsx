@@ -222,13 +222,13 @@ export default function App() {
                   </RadioGroup>
                   {notificationType === 'email' && (
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                      <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
                       <Input id="email" value={notificationEmail} onChange={(e) => setNotificationEmail(e.target.value)} className="w-full" required />
                     </div>
                   )}
                   {notificationType === 'whatsapp' && (
                     <div className="space-y-2">
-                      <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp</Label>
+                      <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp number</Label>
                       <Input id="whatsapp" value={notificationWhatsApp} onChange={(e) => setNotificationWhatsApp(e.target.value)} className="w-full" required />
                     </div>
                   )}
