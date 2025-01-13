@@ -1,7 +1,7 @@
-# **Tick Task** ⏰  
+# **Task Tick** ⏰  
 
 ### **Your Smart Task Management Companion**  
-**Tick Task** is more than just a to-do list app—it’s your personal task assistant. Built with the robust **MERN Stack**, **Tick Task** empowers you to organize tasks, set deadlines, and receive timely reminders via **Email** or **WhatsApp**. Stay ahead of your schedule and never miss a deadline again!  
+**Task Tick** is more than just a to-do list app—it’s your personal task assistant. Built with the robust **MERN Stack**, **Task Tick** empowers you to organize tasks, set deadlines, and receive timely reminders via **Email** or **WhatsApp**. Stay ahead of your schedule and never miss a deadline again!  
 
 ---
 
@@ -115,4 +115,4 @@ We welcome contributions! Follow these steps to contribute:
 
 --- 
 
-### **Don't Let Deadlines Tick Away! Try Tick Task Today!**  
+### **Don't Let Deadlines Tick Away! Try Task Tick Today!**  
