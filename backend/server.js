@@ -77,7 +77,7 @@ async function sendTaskReminderEmail(task) {
             <td style="padding: 8px; border: 1px solid #ddd;">${task.deadline.toLocaleString()}</td>
           </tr>
         </table>
-        <p>You received this email because you have saved this email for notifications related to the task reminder.</p>
+        <p>You received this email because you saved this email for notifications on the Task Tick</p>
         <p>Best regards,</p>
         <p>Team Task Tick</p>
       </body>
