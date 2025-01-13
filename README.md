@@ -5,6 +5,10 @@
 
 ---
 
+**[Live link](https://task-tick-app.vercel.app/)** 
+
+---
+
 ## **Currently in Working State !** 
 
 ---
