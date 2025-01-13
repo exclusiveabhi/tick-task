@@ -95,7 +95,7 @@
    This means your backend is running on 5000 port.  
 
 ---
-4. **Run the Application:**  
+5. **Run the Application:**  
    ```bash  
    npm run dev  
    ```  
