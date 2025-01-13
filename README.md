@@ -76,7 +76,7 @@
    ```  
 
 3. **Set Up Environment Variables:**  
-   Create a `.env` file in the backend root directory with the following keys:  
+   Create a `.env` file in the backend root directory as `.env.example` with the following keys:  
    ```env  
    MONGO_URI=<your-mongodb-connection-string>  
    EMAIL_API_KEY=<your-email-api-key>  
@@ -84,6 +84,17 @@
    PORT=5000  
    ```  
 
+4. **Configure Backend URL:**  
+   In frontend folder open config file and replace `backendURL` with your backend url:
+   ```bash  
+   const config = {
+   backendUrl: 'http://localhost:5000',
+   }; 
+   export default config;
+   ```  
+   This means your backend is running on 5000 port.  
+
+---
 4. **Run the Application:**  
    ```bash  
    npm run dev  
