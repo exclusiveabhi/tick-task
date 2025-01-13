@@ -26,6 +26,7 @@ router.post('/', verifyToken, async (req, res) => {
     await notification.save();
     res.status(201).json(notification);
   } catch (err) {
+    console.error('Failed to save notification settings:', err);
     res.status(500).json({ error: 'Failed to save notification settings' });
   }
 });
@@ -34,8 +35,12 @@ router.post('/', verifyToken, async (req, res) => {
 router.get('/', verifyToken, async (req, res) => {
   try {
     const notification = await Notification.findOne({ userId: req.user.id });
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification settings not found' });
+    }
     res.status(200).json(notification);
   } catch (err) {
+    console.error('Failed to fetch notification settings:', err);
     res.status(500).json({ error: 'Failed to fetch notification settings' });
   }
 });

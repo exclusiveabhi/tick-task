@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { Button } from "./components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
 import Input from "./components/ui/input";
 import { Label } from "./components/ui/label";
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
@@ -29,24 +29,35 @@ export default function App() {
   const { isAuthenticated } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchNotificationSettings = async () => {
+    const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${config.backendUrl}/api/notifications`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
-        if (response.data) {
-          setNotificationType(response.data.notificationType);
-          setNotificationEmail(response.data.notificationEmail);
-          setNotificationWhatsApp(response.data.notificationWhatsApp);
-          setNotificationTime(response.data.notificationTime);
-          console.log('Fetched notification settings:', response.data);
+        const [tasksResponse, notificationResponse] = await Promise.all([
+          axios.get(`${config.backendUrl}/api/tasks`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }),
+          axios.get(`${config.backendUrl}/api/notifications`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }),
+        ]);
+
+        setTasks(tasksResponse.data);
+
+        if (notificationResponse.data) {
+          setNotificationType(notificationResponse.data.notificationType);
+          setNotificationEmail(notificationResponse.data.notificationEmail);
+          setNotificationWhatsApp(notificationResponse.data.notificationWhatsApp);
+          setNotificationTime(notificationResponse.data.notificationTime);
         }
       } catch (err) {
-        console.error('Failed to fetch notification settings', err);
+        console.error('Failed to fetch user data:', err);
+        setPopupMessage('Failed to fetch user data');
+        setPopupColor('red');
+        setTimeout(() => setPopupMessage(''), 3000);
       }
     };
+
     if (isAuthenticated) {
-      fetchNotificationSettings();
+      fetchUserData();
     }
   }, [isAuthenticated]);
 
@@ -71,27 +82,6 @@ export default function App() {
     }
   };
 
-  const fetchTasks = async () => {
-    try {
-      const response = await fetch(`${config.backendUrl}/api/tasks`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      const data = await response.json();
-      setTasks(data);
-      console.log('Fetched tasks:', data);
-    } catch (err) {
-      console.error('Failed to fetch tasks', err);
-    }
-  };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchTasks();
-    }
-  }, [isAuthenticated]);
-
   const addTask = async () => {
     if (!taskTitle || !taskDescription || !taskDeadline || !taskPriority) {
       setPopupMessage('All fields are required!');
@@ -101,39 +91,24 @@ export default function App() {
     }
 
     try {
-      const response = await fetch(`${config.backendUrl}/api/tasks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          title: taskTitle,
-          description: taskDescription,
-          deadline: taskDeadline,
-          priority: taskPriority,
-          notificationType,
-          notificationEmail,
-          notificationWhatsApp,
-          notificationTime,
-        }),
+      const response = await axios.post(`${config.backendUrl}/api/tasks`, {
+        title: taskTitle,
+        description: taskDescription,
+        deadline: taskDeadline,
+        priority: taskPriority,
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      const data = await response.json();
-      setTasks([...tasks, data]);
+      setTasks([...tasks, response.data]);
       setTaskTitle('');
       setTaskDescription('');
       setTaskDeadline('');
       setTaskPriority('');
-      setNotificationType('email');
-      setNotificationEmail('');
-      setNotificationWhatsApp('');
-      setNotificationTime(10);
       setPopupMessage('Task added successfully!');
       setPopupColor('green');
       setTimeout(() => setPopupMessage(''), 3000);
-      console.log('Added task:', data);
     } catch (err) {
-      console.error('Failed to create task', err);
+      console.error('Failed to create task:', err);
       setPopupMessage('Failed to create task');
       setPopupColor('red');
       setTimeout(() => setPopupMessage(''), 3000);
@@ -272,30 +247,35 @@ export default function App() {
               transition={{ duration: 0.5 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {tasks.map((task, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="w-full"
-                >
-                  <Card className="bg-white shadow-md rounded-lg p-4">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-bold">{task.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600">{task.description}</p>
-                      <p className="text-gray-600">Notification Type: {notificationType}</p>
-                      {notificationType === 'email' && <p className="text-gray-600">Email: {notificationEmail}</p>}
-                      {notificationType === 'whatsapp' && <p className="text-gray-600">WhatsApp: {notificationWhatsApp}</p>}
-                      <p className="text-gray-600">Deadline: {format(new Date(task.deadline), 'hh:mm a dd/MM/yy')}</p>
-                      <p className="text-gray-600">Timer: {notificationTime} minutes before deadline</p>
-                      <p className="text-gray-600">Priority: {task.priority}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+              {tasks.map((task, index) => {
+                const deadlineDate = new Date(task.deadline);
+                const isValidDate = !isNaN(deadlineDate);
+
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="w-full"
+                  >
+                    <Card className="bg-white shadow-md rounded-lg p-4">
+                      <CardHeader>
+                        <CardTitle className="text-xl font-bold">{task.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600">{task.description}</p>
+                        <p className="text-gray-600">Notification Type: {notificationType}</p>
+                        {notificationType === 'email' && <p className="text-gray-600">Email: {notificationEmail}</p>}
+                        {notificationType === 'whatsapp' && <p className="text-gray-600">WhatsApp: {notificationWhatsApp}</p>}
+                        <p className="text-gray-600">Deadline: {isValidDate ? format(deadlineDate, 'hh:mm a dd/MM/yy') : 'Invalid date'}</p>
+                        <p className="text-gray-600">Timer: {notificationTime} minutes before deadline</p>
+                        <p className="text-gray-600">Priority: {task.priority}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
             </motion.div>
           )}
           {view === 'notification-type' && (
